@@ -265,12 +265,14 @@ internal extension BottomSheetView {
     
 #if !os(macOS)
     func appleScrollView(with geometry: GeometryProxy) -> some View {
-        UIScrollViewWrapper(
-            isScrollEnabled: self.$isScrollEnabled,
-            dragState: self.$dragState
-        ) {
+        UIScrollViewWrapper(isScrollEnabled: self.$isScrollEnabled,
+                            dragState: self.$dragState,
+                            scrollToOffSet: self.$scrollToOffSet,
+                            onChangeOffSet: { point in
+            self.configuration.onAppleScrollingChanged(point)
+        }, content: {
             self.mainContent
-        }
+        })
         // Make ScrollView drag-able
         .gesture(
             self.isScrollEnabled ? nil : self.appleScrollViewDragGesture(with: geometry)

@@ -24,6 +24,7 @@ internal struct BottomSheetView<HContent: View, MContent: View>: View {
     // For `appleScrollBehaviour`
     @State var isScrollEnabled: Bool = false
     @State var dragState: DragGesture.DragState = .none
+    @Binding var scrollToOffSet: CGPoint?
 #endif
     
     // View heights

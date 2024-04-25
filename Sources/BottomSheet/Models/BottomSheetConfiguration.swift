@@ -57,6 +57,7 @@ internal class BottomSheetConfiguration: Equatable {
     var onDismiss: () -> Void = {}
     var onDragEnded: (DragGesture.Value) -> Void = { _ in }
     var onDragChanged: (DragGesture.Value) -> Void = { _ in }
+    var onAppleScrollingChanged: (CGPoint) -> Void = { _ in }
     var threshold: Double = 0.3
     var iPadFloatingSheet: Bool = true
     var sheetWidth: BottomSheetWidth = .platformDefault

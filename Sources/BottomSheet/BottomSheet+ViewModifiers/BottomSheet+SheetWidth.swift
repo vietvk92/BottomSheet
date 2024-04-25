@@ -23,4 +23,5 @@ public extension BottomSheet {
         self.configuration.sheetWidth = width
         return self
     }
+
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 public struct BottomSheet<HContent: View, MContent: View, V: View>: View {
     
+    @Binding private var scrollToOffSet: CGPoint?
     @Binding private var bottomSheetPosition: BottomSheetPosition
     
     // Views
@@ -29,6 +30,7 @@ public struct BottomSheet<HContent: View, MContent: View, V: View>: View {
             
             BottomSheetView(
                 bottomSheetPosition: self.$bottomSheetPosition,
+                scrollToOffSet: self.$scrollToOffSet,
                 headerContent: self.headerContent,
                 mainContent: self.mainContent,
                 switchablePositions: self.switchablePositions,
@@ -39,12 +41,14 @@ public struct BottomSheet<HContent: View, MContent: View, V: View>: View {
     
     // Initializers
     internal init(
+        scrollToOffSet: Binding<CGPoint?> = .constant(.zero),
         bottomSheetPosition: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition],
         headerContent: HContent?,
         mainContent: MContent,
         view: V
     ) {
+        self._scrollToOffSet = scrollToOffSet
         self._bottomSheetPosition = bottomSheetPosition
         self.switchablePositions = switchablePositions
         self.headerContent = headerContent
@@ -53,6 +57,7 @@ public struct BottomSheet<HContent: View, MContent: View, V: View>: View {
     }
     
     internal init(
+        scrollToOffSet: Binding<CGPoint?> = .constant(.zero),
         bottomSheetPosition: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition],
         title: String?,
@@ -60,6 +65,7 @@ public struct BottomSheet<HContent: View, MContent: View, V: View>: View {
         view: V
     ) {
         self.init(
+            scrollToOffSet: scrollToOffSet,
             bottomSheetPosition: bottomSheetPosition,
             switchablePositions: switchablePositions,
             headerContent: {
@@ -92,6 +98,7 @@ public extension View {
     /// You can use a String that is displayed as title instead.
     /// - Parameter mainContent: A view that is used as main content for the BottomSheet.
     func bottomSheet<HContent: View, MContent: View>(
+        scrollToOffSet: Binding<CGPoint?> = .constant(.zero),
         bottomSheetPosition: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition],
         @ViewBuilder headerContent: () -> HContent? = {
@@ -100,6 +107,7 @@ public extension View {
         @ViewBuilder mainContent: () -> MContent
     ) -> BottomSheet<HContent, MContent, Self> {
         BottomSheet(
+            scrollToOffSet: scrollToOffSet,
             bottomSheetPosition: bottomSheetPosition,
             switchablePositions: switchablePositions,
             headerContent: headerContent(),
@@ -121,12 +129,14 @@ public extension View {
     typealias TitleContent = ModifiedContent<Text, _EnvironmentKeyWritingModifier<Int?>>
     
     func bottomSheet<MContent: View>(
+        scrollToOffSet: Binding<CGPoint?> = .constant(.zero),
         bottomSheetPosition: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition],
         title: String? = nil,
         @ViewBuilder content: () -> MContent
     ) -> BottomSheet<TitleContent, MContent, Self> {
         BottomSheet(
+            scrollToOffSet: scrollToOffSet,
             bottomSheetPosition: bottomSheetPosition,
             switchablePositions: switchablePositions,
             title: title,

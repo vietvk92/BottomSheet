@@ -13,7 +13,11 @@ internal struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentabl
     @State private var contentOffsetAnimation: TimerAnimation?
     @Binding private var isScrollEnabled: Bool
     @Binding private var dragState: DragGesture.DragState
+    @Binding private var scrollToOffSet: CGPoint?
+    
     private var content: Content
+    
+    var onChangeOffSet: ((CGPoint) -> Void)?
     
     func makeUIViewController(
         context: UIViewControllerRepresentableContext<Self>
@@ -35,6 +39,10 @@ internal struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentabl
             viewController.scrollView.isScrollEnabled = self.isScrollEnabled
         }
         
+        // scroll to offset
+        if let offset = self.scrollToOffSet {
+            viewController.scrollView.setContentOffset(offset, animated: true)
+        }
         // dragState
         switch self.dragState {
         case .none:
@@ -82,7 +90,9 @@ internal struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentabl
     func makeCoordinator() -> Coordinator {
         Coordinator(
             contentOffsetAnimation: self.$contentOffsetAnimation,
-            isScrollEnabled: self.$isScrollEnabled
+            isScrollEnabled: self.$isScrollEnabled,
+            scrollToOffSet: self.$scrollToOffSet,
+            onChangeOffSet: onChangeOffSet
         )
     }
     
@@ -194,8 +204,12 @@ internal struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentabl
         
         @Binding fileprivate var contentOffsetAnimation: TimerAnimation?
         @Binding fileprivate var isScrollEnabled: Bool
+        @Binding fileprivate var scrollToOffSet: CGPoint?
+        
+        private let onChangeOffSet: ((CGPoint) -> Void)?
         
         func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            self.scrollToOffSet = nil
             DispatchQueue.main.async {
                 self.contentOffsetAnimation?.invalidate()
                 self.contentOffsetAnimation = nil
@@ -214,6 +228,7 @@ internal struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentabl
         }
         
         private func updateScroll(for offset: CGPoint) {
+            onChangeOffSet?(offset)
             DispatchQueue.main.async {
                 if offset.y <= 0 {
                     self.isScrollEnabled = false
@@ -225,20 +240,28 @@ internal struct UIScrollViewWrapper<Content: View>: UIViewControllerRepresentabl
         
         fileprivate init(
             contentOffsetAnimation: Binding<TimerAnimation?>,
-            isScrollEnabled: Binding<Bool>
+            isScrollEnabled: Binding<Bool>,
+            scrollToOffSet: Binding<CGPoint?>,
+            onChangeOffSet: ((CGPoint) -> Void)?
         ) {
             self._contentOffsetAnimation = contentOffsetAnimation
             self._isScrollEnabled = isScrollEnabled
+            self._scrollToOffSet = scrollToOffSet
+            self.onChangeOffSet = onChangeOffSet
         }
     }
     
     init(
         isScrollEnabled: Binding<Bool>,
         dragState: Binding<DragGesture.DragState>,
+        scrollToOffSet: Binding<CGPoint?>,
+        onChangeOffSet: ((CGPoint) -> Void)?,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self._isScrollEnabled = isScrollEnabled
         self._dragState = dragState
+        self._scrollToOffSet = scrollToOffSet
+        self.onChangeOffSet = onChangeOffSet
         self.content = content()
     }
 }

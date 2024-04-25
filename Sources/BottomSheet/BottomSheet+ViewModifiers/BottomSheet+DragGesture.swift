@@ -54,4 +54,9 @@ public extension BottomSheet {
         self.configuration.dragPositionSwitchAction = action
         return self
     }
+    
+    func onAppleScrollingChange(_ perform: @escaping (CGPoint) -> Void) -> BottomSheet {
+        self.configuration.onAppleScrollingChanged = perform
+        return self
+    }
 }
